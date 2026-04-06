@@ -105,15 +105,15 @@ export default function UploadScan() {
       setProgress(90);
 
       // 5. Save results
-      const { error: resultErr } = await supabase.from("scan_results").insert({
+      const { error: resultErr } = await supabase.from("scan_results").insert([{
         scan_id: scan.id,
         user_id: user.id,
         primary_diagnosis: result.primaryDiagnosis,
         confidence_score: result.confidenceScore,
-        differentials: result.differentials as unknown as Record<string, unknown>[],
+        differentials: result.differentials as any,
         clinical_summary: result.clinicalSummary,
-        heatmap_data: result.heatmapRegions as unknown as Record<string, unknown>[],
-      });
+        heatmap_data: result.heatmapRegions as any,
+      }]);
 
       if (resultErr) throw resultErr;
 

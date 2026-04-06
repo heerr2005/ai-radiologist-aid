@@ -110,9 +110,9 @@ export default function UploadScan() {
         user_id: user.id,
         primary_diagnosis: result.primaryDiagnosis,
         confidence_score: result.confidenceScore,
-        differentials: result.differentials,
+        differentials: result.differentials as unknown as Record<string, unknown>[],
         clinical_summary: result.clinicalSummary,
-        heatmap_data: result.heatmapRegions,
+        heatmap_data: result.heatmapRegions as unknown as Record<string, unknown>[],
       });
 
       if (resultErr) throw resultErr;

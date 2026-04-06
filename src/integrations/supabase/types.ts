@@ -14,7 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      patients: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          id: string
+          notes: string | null
+          patient_id_number: string | null
+          patient_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          id?: string
+          notes?: string | null
+          patient_id_number?: string | null
+          patient_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          id?: string
+          notes?: string | null
+          patient_id_number?: string | null
+          patient_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scan_results: {
+        Row: {
+          clinical_summary: string | null
+          confidence_score: number
+          created_at: string
+          differentials: Json
+          heatmap_data: Json | null
+          id: string
+          primary_diagnosis: string
+          scan_id: string
+          user_id: string
+        }
+        Insert: {
+          clinical_summary?: string | null
+          confidence_score: number
+          created_at?: string
+          differentials?: Json
+          heatmap_data?: Json | null
+          id?: string
+          primary_diagnosis: string
+          scan_id: string
+          user_id: string
+        }
+        Update: {
+          clinical_summary?: string | null
+          confidence_score?: number
+          created_at?: string
+          differentials?: Json
+          heatmap_data?: Json | null
+          id?: string
+          primary_diagnosis?: string
+          scan_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scan_results_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scans: {
+        Row: {
+          created_at: string
+          id: string
+          image_type: Database["public"]["Enums"]["image_type"]
+          image_url: string
+          notes: string | null
+          patient_id: string
+          status: Database["public"]["Enums"]["scan_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_type: Database["public"]["Enums"]["image_type"]
+          image_url: string
+          notes?: string | null
+          patient_id: string
+          status?: Database["public"]["Enums"]["scan_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_type?: Database["public"]["Enums"]["image_type"]
+          image_url?: string
+          notes?: string | null
+          patient_id?: string
+          status?: Database["public"]["Enums"]["scan_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scans_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +143,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      image_type: "xray" | "ct" | "mri"
+      scan_status: "uploaded" | "analyzing" | "complete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +271,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      image_type: ["xray", "ct", "mri"],
+      scan_status: ["uploaded", "analyzing", "complete"],
+    },
   },
 } as const

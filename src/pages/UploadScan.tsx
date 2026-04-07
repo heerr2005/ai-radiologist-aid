@@ -32,7 +32,7 @@ export default function UploadScan() {
   const [dragOver, setDragOver] = useState(false);
 
   const acceptedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-  const maxSize = 50 * 1024 * 1024; // 50MB
+  const maxSize = 50 * 1024 * 1024;
 
   const handleFile = (f: File) => {
     if (!acceptedTypes.includes(f.type)) {
@@ -64,7 +64,6 @@ export default function UploadScan() {
     setProgress(10);
 
     try {
-      // 1. Create or find patient
       const { data: patient, error: patientErr } = await supabase
         .from("patients")
         .insert({ user_id: user.id, patient_name: patientName.trim(), patient_id_number: patientId || null, notes: null })
@@ -74,7 +73,6 @@ export default function UploadScan() {
       if (patientErr) throw patientErr;
       setProgress(30);
 
-      // 2. Upload image to storage
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
       const { error: uploadErr } = await supabase.storage.from("scan-images").upload(filePath, file);
       if (uploadErr) throw uploadErr;
@@ -82,7 +80,6 @@ export default function UploadScan() {
 
       const { data: urlData } = supabase.storage.from("scan-images").getPublicUrl(filePath);
 
-      // 3. Create scan record
       const { data: scan, error: scanErr } = await supabase
         .from("scans")
         .insert({
@@ -99,12 +96,10 @@ export default function UploadScan() {
       if (scanErr) throw scanErr;
       setProgress(70);
 
-      // 4. Generate mock AI analysis (with delay for realism)
       await new Promise((r) => setTimeout(r, 1500));
       const result = generateMockAnalysis(imageType);
       setProgress(90);
 
-      // 5. Save results
       const { error: resultErr } = await supabase.from("scan_results").insert([{
         scan_id: scan.id,
         user_id: user.id,
@@ -117,7 +112,6 @@ export default function UploadScan() {
 
       if (resultErr) throw resultErr;
 
-      // 6. Update scan status to complete
       await supabase.from("scans").update({ status: "complete" as const }).eq("id", scan.id);
       setProgress(100);
 
@@ -132,30 +126,30 @@ export default function UploadScan() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Upload Medical Scan</h1>
+      <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Upload Medical Scan</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Drop zone */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Scan Image</CardTitle>
-              <CardDescription>Upload X-Ray, CT, or MRI images (PNG, JPG up to 50MB)</CardDescription>
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-base sm:text-lg">Scan Image</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Upload X-Ray, CT, or MRI images (PNG, JPG up to 50MB)</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               {!preview ? (
                 <div
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={onDrop}
-                  className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
+                  className={`border-2 border-dashed rounded-lg p-8 sm:p-12 text-center cursor-pointer transition-colors ${
                     dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => document.getElementById("file-input")?.click()}
                 >
-                  <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                  <Upload className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-3 text-muted-foreground" />
                   <p className="text-sm font-medium">Drag & drop your scan here</p>
-                  <p className="text-xs text-muted-foreground mt-1">or click to browse files</p>
+                  <p className="text-xs text-muted-foreground mt-1">or tap to browse files</p>
                   <input
                     id="file-input"
                     type="file"
@@ -166,7 +160,7 @@ export default function UploadScan() {
                 </div>
               ) : (
                 <div className="relative">
-                  <img src={preview} alt="Scan preview" className="rounded-lg max-h-64 mx-auto object-contain" />
+                  <img src={preview} alt="Scan preview" className="rounded-lg max-h-48 sm:max-h-64 mx-auto object-contain" />
                   <Button
                     variant="destructive"
                     size="icon"
@@ -184,10 +178,10 @@ export default function UploadScan() {
 
           {/* Image type & patient info */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Scan Details</CardTitle>
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-base sm:text-lg">Scan Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6">
               <div className="space-y-2">
                 <Label>Image Type</Label>
                 <Select value={imageType} onValueChange={(v) => setImageType(v as ImageType)}>

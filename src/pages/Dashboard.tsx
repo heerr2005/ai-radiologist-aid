@@ -67,7 +67,6 @@ export default function Dashboard() {
         patients: patCount ?? 0,
       });
 
-      // Type breakdown for chart
       const { data: allScans } = await supabase
         .from("scans")
         .select("image_type")
@@ -108,14 +107,14 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between animate-in">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back to RadiologyAI</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Welcome back to RadiologyAI</p>
           </div>
-          <Button asChild className="gap-2 hover-lift">
+          <Button asChild className="gap-2 w-full sm:w-auto">
             <Link to="/upload">
               <Upload className="h-4 w-4" />
               Upload Scan
@@ -124,37 +123,63 @@ export default function Dashboard() {
         </div>
 
         {/* Stats cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Total Scans", value: stats.total, icon: Activity, color: "primary" },
-            { label: "Completed", value: stats.complete, icon: FileCheck, color: "success" },
-            { label: "Analyzing", value: stats.analyzing, icon: Clock, color: "warning" },
-            { label: "Patients", value: stats.patients, icon: Users, color: "accent" },
-          ].map((item, i) => (
-            <Card key={item.label} className="group hover-lift animate-in" style={{ animationDelay: `${i * 80}ms` }}>
-              <CardContent className="flex items-center gap-4 p-5">
-                <div className={`rounded-xl bg-${item.color}/10 p-3 group-hover:scale-110 transition-transform`}>
-                  <item.icon className={`h-5 w-5 text-${item.color}`} />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">{item.label}</p>
-                  <p className="text-2xl font-bold tracking-tight">{item.value}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Card className="group hover:shadow-md transition-all">
+            <CardContent className="flex items-center gap-3 p-4 sm:p-5">
+              <div className="rounded-xl bg-primary/10 p-2.5 sm:p-3 group-hover:scale-110 transition-transform shrink-0">
+                <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Total Scans</p>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight">{stats.total}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="group hover:shadow-md transition-all">
+            <CardContent className="flex items-center gap-3 p-4 sm:p-5">
+              <div className="rounded-xl bg-success/10 p-2.5 sm:p-3 group-hover:scale-110 transition-transform shrink-0">
+                <FileCheck className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Completed</p>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight">{stats.complete}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="group hover:shadow-md transition-all">
+            <CardContent className="flex items-center gap-3 p-4 sm:p-5">
+              <div className="rounded-xl bg-warning/10 p-2.5 sm:p-3 group-hover:scale-110 transition-transform shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Analyzing</p>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight">{stats.analyzing}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="group hover:shadow-md transition-all">
+            <CardContent className="flex items-center gap-3 p-4 sm:p-5">
+              <div className="rounded-xl bg-accent/10 p-2.5 sm:p-3 group-hover:scale-110 transition-transform shrink-0">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Patients</p>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight">{stats.patients}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Completion rate & type breakdown */}
-          <Card className="animate-in" style={{ animationDelay: "200ms" }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
+          <Card>
+            <CardHeader className="pb-3 p-4 sm:p-6 sm:pb-3">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
                 Analysis Overview
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="space-y-5 px-4 sm:px-6">
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-muted-foreground">Completion Rate</span>
@@ -166,7 +191,7 @@ export default function Dashboard() {
               {typeBreakdown.length > 0 ? (
                 <div>
                   <p className="text-sm text-muted-foreground mb-3">Scan Types</p>
-                  <div className="h-32">
+                  <div className="h-28 sm:h-32">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -175,8 +200,8 @@ export default function Dashboard() {
                           nameKey="name"
                           cx="50%"
                           cy="50%"
-                          innerRadius={30}
-                          outerRadius={55}
+                          innerRadius={25}
+                          outerRadius={48}
                           strokeWidth={2}
                         >
                           {typeBreakdown.map((_, i) => (
@@ -187,10 +212,10 @@ export default function Dashboard() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex flex-wrap gap-3 mt-2 justify-center">
+                  <div className="flex flex-wrap gap-2 sm:gap-3 mt-2 justify-center">
                     {typeBreakdown.map((t, i) => (
-                      <div key={t.name} className="flex items-center gap-1.5 text-xs">
-                        <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                      <div key={t.name} className="flex items-center gap-1.5 text-[10px] sm:text-xs">
+                        <div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
                         <span className="text-muted-foreground">{t.name} ({t.value})</span>
                       </div>
                     ))}
@@ -206,9 +231,9 @@ export default function Dashboard() {
           </Card>
 
           {/* Recent scans */}
-          <Card className="lg:col-span-2 animate-in" style={{ animationDelay: "300ms" }}>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-3 p-4 sm:p-6 sm:pb-3">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary" />
                 Recent Scans
               </CardTitle>
@@ -218,12 +243,12 @@ export default function Dashboard() {
                 </Link>
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               {recentScans.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="relative mx-auto w-16 h-16 mb-4">
+                <div className="text-center py-8 sm:py-12">
+                  <div className="relative mx-auto w-14 h-14 sm:w-16 sm:h-16 mb-4">
                     <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse" />
-                    <Activity className="h-8 w-8 absolute inset-0 m-auto text-muted-foreground/40" />
+                    <Activity className="h-7 w-7 sm:h-8 sm:w-8 absolute inset-0 m-auto text-muted-foreground/40" />
                   </div>
                   <p className="text-sm text-muted-foreground mb-1">No scans yet</p>
                   <p className="text-xs text-muted-foreground mb-4">Upload your first scan to get started</p>
@@ -233,28 +258,27 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {recentScans.map((scan, i) => (
+                  {recentScans.map((scan) => (
                     <Link
                       key={scan.id}
                       to={scan.status === "complete" ? `/analysis/${scan.id}` : "#"}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 hover:border-primary/20 transition-all duration-200 group animate-in"
-                      style={{ animationDelay: `${400 + i * 60}ms` }}
+                      className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg border border-border hover:bg-muted/50 hover:border-primary/20 transition-all duration-200 group"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary text-xs font-bold">
+                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                        <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary text-[10px] sm:text-xs font-bold shrink-0">
                           {typeLabel(scan.image_type).slice(0, 2)}
                         </div>
-                        <div>
-                          <p className="font-medium text-sm group-hover:text-primary transition-colors">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-xs sm:text-sm group-hover:text-primary transition-colors truncate">
                             {scan.patients?.patient_name ?? "Unknown Patient"}
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            {typeLabel(scan.image_type)} · {format(new Date(scan.created_at), "MMM d, yyyy HH:mm")}
+                          <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                            {typeLabel(scan.image_type)} · {format(new Date(scan.created_at), "MMM d, yyyy")}
                           </p>
                         </div>
                       </div>
-                      <Badge className={`${statusColor(scan.status)} border text-xs`} variant="secondary">
-                        {scan.status === "complete" ? "Complete" : scan.status === "analyzing" ? "Analyzing" : "Uploaded"}
+                      <Badge className={`${statusColor(scan.status)} border text-[10px] sm:text-xs shrink-0 ml-2`} variant="secondary">
+                        {scan.status === "complete" ? "Done" : scan.status === "analyzing" ? "Pending" : "New"}
                       </Badge>
                     </Link>
                   ))}
@@ -265,26 +289,46 @@ export default function Dashboard() {
         </div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in" style={{ animationDelay: "500ms" }}>
-          {[
-            { to: "/upload", label: "Upload New Scan", desc: "Analyze X-Ray, CT, or MRI", icon: Upload, gradient: "from-primary to-primary/80" },
-            { to: "/patients", label: "Manage Patients", desc: "View and edit patient records", icon: Users, gradient: "from-accent to-accent/80" },
-            { to: "/history", label: "Scan History", desc: "Browse all past analyses", icon: FileCheck, gradient: "from-success to-success/80" },
-          ].map((action) => (
-            <Link key={action.to} to={action.to}>
-              <Card className="group hover-lift cursor-pointer h-full">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className={`rounded-xl bg-gradient-to-br ${action.gradient} p-3 text-primary-foreground group-hover:scale-110 transition-transform`}>
-                    <action.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{action.label}</p>
-                    <p className="text-xs text-muted-foreground">{action.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <Link to="/upload">
+            <Card className="group hover:shadow-md cursor-pointer h-full transition-all">
+              <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+                <div className="rounded-xl bg-gradient-to-br from-primary to-primary/80 p-2.5 sm:p-3 text-primary-foreground group-hover:scale-110 transition-transform shrink-0">
+                  <Upload className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Upload New Scan</p>
+                  <p className="text-xs text-muted-foreground">Analyze X-Ray, CT, or MRI</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/patients">
+            <Card className="group hover:shadow-md cursor-pointer h-full transition-all">
+              <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+                <div className="rounded-xl bg-gradient-to-br from-accent to-accent/80 p-2.5 sm:p-3 text-primary-foreground group-hover:scale-110 transition-transform shrink-0">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Manage Patients</p>
+                  <p className="text-xs text-muted-foreground">View and edit records</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/history">
+            <Card className="group hover:shadow-md cursor-pointer h-full transition-all">
+              <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+                <div className="rounded-xl bg-gradient-to-br from-success to-success/80 p-2.5 sm:p-3 text-primary-foreground group-hover:scale-110 transition-transform shrink-0">
+                  <FileCheck className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Scan History</p>
+                  <p className="text-xs text-muted-foreground">Browse past analyses</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
     </AppLayout>

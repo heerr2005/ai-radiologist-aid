@@ -10,12 +10,14 @@ import {
   Brain,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/upload", label: "Upload Scan", icon: Upload },
+  { to: "/patients", label: "Patients", icon: Users },
   { to: "/history", label: "Scan History", icon: History },
 ];
 

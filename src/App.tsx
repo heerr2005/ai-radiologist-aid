@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import UploadScan from "./pages/UploadScan";
 import Analysis from "./pages/Analysis";
 import ScanHistory from "./pages/ScanHistory";
+import Patients from "./pages/Patients";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/upload" element={<ProtectedRoute><UploadScan /></ProtectedRoute>} />
             <Route path="/analysis/:id" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+            <Route path="/patients" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><ScanHistory /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

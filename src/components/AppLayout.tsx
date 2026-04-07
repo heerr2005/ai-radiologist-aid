@@ -36,9 +36,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
-        <div className="flex items-center gap-2 px-6 py-5 border-b border-border">
-          <Brain className="h-7 w-7 text-primary" />
-          <span className="text-lg font-bold text-foreground">RadiologyAI</span>
+        <div className="flex items-center gap-2.5 px-6 py-5 border-b border-border">
+          <div className="rounded-lg bg-gradient-to-br from-primary to-accent p-1.5">
+            <Brain className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="text-lg font-bold gradient-text">RadiologyAI</span>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map((item) => {
@@ -47,10 +49,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                   active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground hover:translate-x-0.5"
                 }`}
               >
                 <item.icon className="h-4 w-4" />
@@ -60,8 +62,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="border-t border-border p-4">
-          <p className="text-xs text-muted-foreground truncate mb-2">{user?.email}</p>
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+          <div className="flex items-center gap-3 mb-3 px-1">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-primary text-xs font-bold">
+              {user?.email?.charAt(0).toUpperCase()}
+            </div>
+            <p className="text-xs text-muted-foreground truncate flex-1">{user?.email}</p>
+          </div>
+          <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-destructive" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>

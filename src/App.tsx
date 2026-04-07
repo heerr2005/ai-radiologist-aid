@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import UploadScan from "./pages/UploadScan";
 import Analysis from "./pages/Analysis";
 import ScanHistory from "./pages/ScanHistory";
+import Patients from "./pages/Patients";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

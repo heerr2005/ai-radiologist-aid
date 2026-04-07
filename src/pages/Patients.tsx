@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +36,17 @@ import {
   FileText,
   Activity,
   Loader2,
+  MoreVertical,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Patient {
   id: string;
@@ -60,13 +66,11 @@ export default function Patients() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Patient | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Form state
   const [formName, setFormName] = useState("");
   const [formIdNumber, setFormIdNumber] = useState("");
   const [formDob, setFormDob] = useState("");
@@ -82,7 +86,6 @@ export default function Patients() {
       .order("updated_at", { ascending: false });
 
     if (data) {
-      // Get scan counts for each patient
       const patientsWithCounts = await Promise.all(
         data.map(async (p) => {
           const { count } = await supabase
@@ -182,51 +185,51 @@ export default function Patients() {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-6xl mx-auto space-y-6 animate-in fade-in duration-500">
+      <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Patients</h1>
-            <p className="text-muted-foreground">Manage your patient records</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Patients</h1>
+            <p className="text-sm text-muted-foreground">Manage your patient records</p>
           </div>
-          <Button onClick={openCreate} className="gap-2">
+          <Button onClick={openCreate} className="gap-2 w-full sm:w-auto">
             <UserPlus className="h-4 w-4" />
             Add Patient
           </Button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="group hover:shadow-md transition-all duration-300">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-primary/10 p-3 group-hover:scale-110 transition-transform">
-                <Users className="h-5 w-5 text-primary" />
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <Card>
+            <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-6">
+              <div className="rounded-full bg-primary/10 p-2 sm:p-3 shrink-0">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Patients</p>
-                <p className="text-2xl font-bold">{patients.length}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="group hover:shadow-md transition-all duration-300">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-accent/10 p-3 group-hover:scale-110 transition-transform">
-                <Activity className="h-5 w-5 text-accent" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Scans</p>
-                <p className="text-2xl font-bold">{patients.reduce((a, p) => a + (p.scan_count ?? 0), 0)}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-sm text-muted-foreground">Total</p>
+                <p className="text-lg sm:text-2xl font-bold">{patients.length}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="group hover:shadow-md transition-all duration-300">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-success/10 p-3 group-hover:scale-110 transition-transform">
-                <Plus className="h-5 w-5 text-success" />
+          <Card>
+            <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-6">
+              <div className="rounded-full bg-accent/10 p-2 sm:p-3 shrink-0">
+                <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Added This Month</p>
-                <p className="text-2xl font-bold">
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-sm text-muted-foreground">Scans</p>
+                <p className="text-lg sm:text-2xl font-bold">{patients.reduce((a, p) => a + (p.scan_count ?? 0), 0)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-2.5 sm:gap-4 p-3 sm:p-6">
+              <div className="rounded-full bg-success/10 p-2 sm:p-3 shrink-0">
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-sm text-muted-foreground">This Month</p>
+                <p className="text-lg sm:text-2xl font-bold">
                   {patients.filter((p) => new Date(p.created_at).getMonth() === new Date().getMonth()).length}
                 </p>
               </div>
@@ -236,7 +239,7 @@ export default function Patients() {
 
         {/* Search */}
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -256,12 +259,12 @@ export default function Patients() {
           </div>
         ) : filtered.length === 0 ? (
           <Card>
-            <CardContent className="py-16 text-center">
-              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-30" />
-              <p className="text-lg font-medium text-muted-foreground mb-2">
+            <CardContent className="py-12 sm:py-16 text-center">
+              <Users className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-30" />
+              <p className="text-base sm:text-lg font-medium text-muted-foreground mb-2">
                 {search ? "No patients match your search" : "No patients yet"}
               </p>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">
                 {search ? "Try different search terms" : "Add your first patient to get started"}
               </p>
               {!search && (
@@ -273,17 +276,16 @@ export default function Patients() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map((patient, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            {filtered.map((patient) => (
               <Card
                 key={patient.id}
-                className="group hover:shadow-lg hover:border-primary/20 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2"
-                style={{ animationDelay: `${i * 50}ms` }}
+                className="group hover:shadow-md hover:border-primary/20 transition-all duration-300"
               >
-                <CardContent className="p-5">
+                <CardContent className="p-4 sm:p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-primary font-bold text-sm">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-primary font-bold text-xs sm:text-sm shrink-0">
                         {patient.patient_name
                           .split(" ")
                           .map((n) => n[0])
@@ -291,29 +293,34 @@ export default function Patients() {
                           .slice(0, 2)
                           .toUpperCase()}
                       </div>
-                      <div>
-                        <p className="font-semibold text-foreground">{patient.patient_name}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm text-foreground truncate">{patient.patient_name}</p>
                         {patient.patient_id_number && (
-                          <p className="text-xs text-muted-foreground">ID: {patient.patient_id_number}</p>
+                          <p className="text-xs text-muted-foreground truncate">ID: {patient.patient_id_number}</p>
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(patient)}>
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => setDeleteTarget(patient)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    {/* Actions — dropdown for mobile, inline for desktop */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(patient)}>
+                          <Edit2 className="h-3.5 w-3.5 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setDeleteTarget(patient)} className="text-destructive focus:text-destructive">
+                          <Trash2 className="h-3.5 w-3.5 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mb-3">
                     {patient.date_of_birth && (
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
@@ -326,18 +333,18 @@ export default function Patients() {
                     </span>
                     <span className="flex items-center gap-1">
                       <FileText className="h-3 w-3" />
-                      {format(new Date(patient.updated_at), "MMM d, yyyy")}
+                      {format(new Date(patient.updated_at), "MMM d")}
                     </span>
                   </div>
 
                   {patient.notes && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 bg-muted/50 rounded px-2 py-1.5">
+                    <p className="text-xs text-muted-foreground line-clamp-2 bg-muted/50 rounded px-2 py-1.5 mb-3">
                       {patient.notes}
                     </p>
                   )}
 
                   {(patient.scan_count ?? 0) > 0 && (
-                    <div className="mt-3 pt-3 border-t border-border">
+                    <div className="pt-2 border-t border-border">
                       <Button variant="ghost" size="sm" className="h-7 text-xs px-2" asChild>
                         <Link to={`/history?patient=${patient.patient_name}`}>
                           View Scans →
@@ -354,7 +361,7 @@ export default function Patients() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Patient" : "Add New Patient"}</DialogTitle>
             <DialogDescription>
@@ -371,7 +378,7 @@ export default function Patients() {
                 placeholder="John Doe"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="d-id">Patient ID</Label>
                 <Input
@@ -402,11 +409,11 @@ export default function Patients() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={!formName.trim() || saving}>
+            <Button onClick={handleSave} disabled={!formName.trim() || saving} className="w-full sm:w-auto">
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editing ? "Update" : "Add Patient"}
             </Button>
@@ -416,16 +423,16 @@ export default function Patients() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Patient</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete <strong>{deleteTarget?.patient_name}</strong>? This will also remove all associated scans and results. This action cannot be undone.
+              Are you sure you want to delete <strong>{deleteTarget?.patient_name}</strong>? This will also remove all associated scans and results.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

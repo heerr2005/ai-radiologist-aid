@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -23,8 +23,9 @@ interface ScanRow {
 
 export default function ScanHistory() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [scans, setScans] = useState<ScanRow[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("patient") ?? "");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
@@ -50,24 +51,24 @@ export default function ScanHistory() {
   });
 
   const statusColor = (s: string) =>
-    s === "complete" ? "bg-green-100 text-green-800" : s === "analyzing" ? "bg-yellow-100 text-yellow-800" : "bg-blue-100 text-blue-800";
+    s === "complete" ? "bg-success/10 text-success border-success/20" : s === "analyzing" ? "bg-warning/10 text-warning border-warning/20" : "bg-primary/10 text-primary border-primary/20";
   const typeLabel = (t: string) => t === "xray" ? "X-Ray" : t === "ct" ? "CT Scan" : "MRI";
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Scan History</h1>
-          <Button asChild>
+      <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 className="text-xl sm:text-2xl font-bold">Scan History</h1>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/upload">New Scan</Link>
           </Button>
         </div>
 
         {/* Filters */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col gap-3">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by patient name or ID..."
@@ -76,24 +77,26 @@ export default function ScanHistory() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="uploaded">Uploaded</SelectItem>
-                  <SelectItem value="analyzing">Analyzing</SelectItem>
-                  <SelectItem value="complete">Complete</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="Type" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="xray">X-Ray</SelectItem>
-                  <SelectItem value="ct">CT Scan</SelectItem>
-                  <SelectItem value="mri">MRI</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="flex-1 sm:w-[150px] sm:flex-none"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="uploaded">Uploaded</SelectItem>
+                    <SelectItem value="analyzing">Analyzing</SelectItem>
+                    <SelectItem value="complete">Complete</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="flex-1 sm:w-[150px] sm:flex-none"><SelectValue placeholder="Type" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="xray">X-Ray</SelectItem>
+                    <SelectItem value="ct">CT Scan</SelectItem>
+                    <SelectItem value="mri">MRI</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -110,33 +113,43 @@ export default function ScanHistory() {
           <div className="space-y-3">
             {filtered.map((scan) => (
               <Card key={scan.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <img
                       src={scan.image_url}
                       alt="Scan thumbnail"
-                      className="h-16 w-16 rounded-lg object-cover border border-border"
+                      className="h-12 w-12 sm:h-16 sm:w-16 rounded-lg object-cover border border-border shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium truncate">{scan.patients?.patient_name ?? "Unknown"}</p>
-                        <Badge className={statusColor(scan.status)} variant="secondary">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <p className="font-medium text-sm truncate">{scan.patients?.patient_name ?? "Unknown"}</p>
+                        <Badge className={`${statusColor(scan.status)} border text-[10px] sm:text-xs`} variant="secondary">
                           {scan.status === "complete" ? "Complete" : scan.status === "analyzing" ? "Analyzing" : "Uploaded"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {typeLabel(scan.image_type)} · {format(new Date(scan.created_at), "MMM d, yyyy HH:mm")}
-                        {scan.patients?.patient_id_number && ` · ID: ${scan.patients.patient_id_number}`}
+                      <p className="text-xs text-muted-foreground truncate">
+                        {typeLabel(scan.image_type)} · {format(new Date(scan.created_at), "MMM d, yyyy")}
+                        {scan.patients?.patient_id_number && <span className="hidden sm:inline"> · ID: {scan.patients.patient_id_number}</span>}
                       </p>
                     </div>
                     {scan.status === "complete" && (
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="outline" size="sm" asChild className="shrink-0 hidden sm:flex">
                         <Link to={`/analysis/${scan.id}`}>
-                          View Results <ExternalLink className="h-3 w-3 ml-1" />
+                          View <ExternalLink className="h-3 w-3 ml-1" />
                         </Link>
                       </Button>
                     )}
                   </div>
+                  {/* Mobile view button */}
+                  {scan.status === "complete" && (
+                    <div className="sm:hidden mt-2 pt-2 border-t border-border">
+                      <Button variant="outline" size="sm" asChild className="w-full">
+                        <Link to={`/analysis/${scan.id}`}>
+                          View Results <ExternalLink className="h-3 w-3 ml-1" />
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

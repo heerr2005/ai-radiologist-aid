@@ -78,14 +78,12 @@ export default function UploadScan() {
       if (uploadErr) throw uploadErr;
       setProgress(50);
 
-      const { data: urlData } = supabase.storage.from("scan-images").getPublicUrl(filePath);
-
       const { data: scan, error: scanErr } = await supabase
         .from("scans")
         .insert({
           user_id: user.id,
           patient_id: patient.id,
-          image_url: urlData.publicUrl,
+          image_url: filePath,
           image_type: imageType,
           status: "analyzing" as const,
           notes: notes || null,

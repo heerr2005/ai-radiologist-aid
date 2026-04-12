@@ -38,7 +38,18 @@ export default function ScanHistory() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (data) setScans(data as unknown as ScanRow[]);
+      if (data) {
+        // Generate signed URLs for each scan image
+        const scansWithUrls = await Promise.all(
+          (data as unknown as ScanRow[]).map(async (scan) => {
+            const { data: signedData } = await supabase.storage
+              .from("scan-images")
+              .createSignedUrl(scan.image_url, 3600);
+            return { ...scan, image_url: signedData?.signedUrl ?? scan.image_url };
+          })
+        );
+        setScans(scansWithUrls);
+      }
     };
     fetchScans();
   }, [user]);

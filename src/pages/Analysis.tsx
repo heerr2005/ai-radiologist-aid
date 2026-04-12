@@ -53,7 +53,17 @@ export default function Analysis() {
         .eq("scan_id", id)
         .single();
 
-      if (scanData) setScan(scanData as unknown as ScanData);
+      if (scanData) {
+        const sd = scanData as unknown as ScanData;
+        // Generate a signed URL for the scan image
+        const { data: signedData } = await supabase.storage
+          .from("scan-images")
+          .createSignedUrl(sd.image_url, 3600);
+        if (signedData?.signedUrl) {
+          sd.image_url = signedData.signedUrl;
+        }
+        setScan(sd);
+      }
       if (resultData) setResult(resultData as unknown as ResultData);
       setLoading(false);
     };

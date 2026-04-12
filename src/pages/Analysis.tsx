@@ -93,62 +93,224 @@ export default function Analysis() {
   const handleDownloadPDF = async () => {
     const { default: jsPDF } = await import("jspdf");
     const doc = new jsPDF();
-    const margin = 15;
-    let y = margin;
+    const m = 15;
+    const pw = 210 - m * 2; // page width minus margins
+    let y = m;
 
-    doc.setFontSize(20);
-    doc.setTextColor(30, 64, 120);
-    doc.text("RadiologyAI — Diagnostic Report", margin, y);
-    y += 12;
+    const addPage = () => { doc.addPage(); y = m; };
+    const checkPage = (need: number) => { if (y + need > 275) addPage(); };
 
+    // ── Header banner ──
+    doc.setFillColor(30, 64, 120);
+    doc.rect(0, 0, 210, 32, "F");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("RadiologyAI", m, 14);
+    doc.setFontSize(10);
+    doc.text("AI-Powered Diagnostic Report", m, 22);
+    doc.setFontSize(8);
+    doc.text(`Report ID: ${id?.slice(0, 8).toUpperCase()}`, 210 - m, 14, { align: "right" });
+    doc.text(`Generated: ${format(new Date(), "MMMM d, yyyy · HH:mm")}`, 210 - m, 22, { align: "right" });
+    y = 40;
+
+    // ── Patient Information ──
+    doc.setFillColor(240, 244, 248);
+    doc.rect(m, y, pw, 30, "F");
     doc.setDrawColor(30, 64, 120);
-    doc.line(margin, y, 195, y);
-    y += 10;
-
+    doc.rect(m, y, pw, 30, "S");
     doc.setFontSize(11);
-    doc.setTextColor(0);
+    doc.setTextColor(30, 64, 120);
+    doc.setFont("helvetica", "bold");
+    doc.text("PATIENT INFORMATION", m + 5, y + 7);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(40, 40, 40);
 
-    if (scan) {
-      doc.setFont("helvetica", "bold");
-      doc.text("Patient Information", margin, y); y += 7;
-      doc.setFont("helvetica", "normal");
-      doc.text(`Name: ${scan.patients?.patient_name ?? "N/A"}`, margin, y); y += 6;
-      doc.text(`Patient ID: ${scan.patients?.patient_id_number ?? "N/A"}`, margin, y); y += 6;
-      doc.text(`Scan Type: ${scan.image_type === "xray" ? "X-Ray" : scan.image_type === "ct" ? "CT Scan" : "MRI"}`, margin, y); y += 6;
-      doc.text(`Date: ${format(new Date(scan.created_at), "MMMM d, yyyy HH:mm")}`, margin, y); y += 10;
-    }
+    const pName = scan?.patients?.patient_name ?? "N/A";
+    const pId = scan?.patients?.patient_id_number ?? "N/A";
+    const scanType = scan?.image_type === "xray" ? "X-Ray" : scan?.image_type === "ct" ? "CT Scan" : "MRI";
+    const scanDate = scan ? format(new Date(scan.created_at), "MMMM d, yyyy · HH:mm") : "N/A";
+
+    doc.text(`Patient Name:`, m + 5, y + 15);
+    doc.setFont("helvetica", "bold");
+    doc.text(pName, m + 40, y + 15);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Patient ID:`, m + 100, y + 15);
+    doc.setFont("helvetica", "bold");
+    doc.text(pId, m + 125, y + 15);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Modality:`, m + 5, y + 22);
+    doc.setFont("helvetica", "bold");
+    doc.text(scanType, m + 30, y + 22);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Scan Date:`, m + 100, y + 22);
+    doc.setFont("helvetica", "bold");
+    doc.text(scanDate, m + 125, y + 22);
+    doc.setFont("helvetica", "normal");
+    y += 38;
 
     if (result) {
+      // ── Primary Diagnosis ──
+      doc.setFillColor(30, 64, 120);
+      doc.rect(m, y, pw, 8, "F");
+      doc.setFontSize(10);
+      doc.setTextColor(255);
       doc.setFont("helvetica", "bold");
-      doc.text("AI Analysis Results", margin, y); y += 7;
-      doc.setFont("helvetica", "normal");
-      doc.text(`Primary Diagnosis: ${result.primary_diagnosis}`, margin, y); y += 6;
-      doc.text(`Confidence: ${result.confidence_score}%`, margin, y); y += 8;
+      doc.text("PRIMARY DIAGNOSIS", m + 3, y + 5.5);
+      y += 12;
 
+      doc.setTextColor(30, 64, 120);
+      doc.setFontSize(16);
+      doc.text(result.primary_diagnosis, m, y);
+      doc.setFontSize(12);
+      doc.setTextColor(34, 139, 34);
+      doc.text(`${result.confidence_score}% Confidence`, 210 - m, y, { align: "right" });
+      y += 10;
+
+      // Confidence bar
+      doc.setDrawColor(200, 200, 200);
+      doc.setFillColor(230, 230, 230);
+      doc.roundedRect(m, y, pw, 5, 2, 2, "FD");
+      doc.setFillColor(30, 64, 120);
+      doc.roundedRect(m, y, pw * (result.confidence_score / 100), 5, 2, 2, "F");
+      y += 12;
+
+      // ── Differential Diagnoses ──
+      checkPage(40);
+      doc.setFillColor(30, 64, 120);
+      doc.rect(m, y, pw, 8, "F");
+      doc.setFontSize(10);
+      doc.setTextColor(255);
+      doc.text("DIFFERENTIAL DIAGNOSES", m + 3, y + 5.5);
+      y += 12;
+
+      doc.setFontSize(9);
+      doc.setTextColor(40, 40, 40);
+
+      // Table header
+      doc.setFillColor(240, 244, 248);
+      doc.rect(m, y, pw, 7, "F");
       doc.setFont("helvetica", "bold");
-      doc.text("Differential Diagnoses:", margin, y); y += 7;
+      doc.text("Rank", m + 3, y + 5);
+      doc.text("Diagnosis", m + 20, y + 5);
+      doc.text("Confidence", m + 130, y + 5);
+      y += 7;
+
       doc.setFont("helvetica", "normal");
-      (result.differentials as Differential[]).forEach((d) => {
-        doc.text(`• ${d.diagnosis} — ${d.confidence.toFixed(1)}%`, margin + 5, y); y += 6;
+      (result.differentials as Differential[]).forEach((d, i) => {
+        const rowY = y;
+        if (i % 2 === 0) {
+          doc.setFillColor(250, 250, 252);
+          doc.rect(m, rowY, pw, 7, "F");
+        }
+        doc.text(`#${i + 2}`, m + 3, rowY + 5);
+        doc.text(d.diagnosis, m + 20, rowY + 5);
+
+        // Mini bar
+        const barW = 40;
+        doc.setFillColor(230, 230, 230);
+        doc.rect(m + 130, rowY + 1.5, barW, 3.5, "F");
+        doc.setFillColor(60, 130, 200);
+        doc.rect(m + 130, rowY + 1.5, barW * (d.confidence / 100), 3.5, "F");
+        doc.text(`${d.confidence.toFixed(1)}%`, m + 173, rowY + 5);
+        y += 7;
       });
-      y += 4;
+      y += 8;
 
+      // ── Clinical Summary ──
       if (result.clinical_summary) {
+        checkPage(35);
+        doc.setFillColor(30, 64, 120);
+        doc.rect(m, y, pw, 8, "F");
+        doc.setFontSize(10);
+        doc.setTextColor(255);
         doc.setFont("helvetica", "bold");
-        doc.text("Clinical Summary", margin, y); y += 7;
+        doc.text("CLINICAL FINDINGS & SUMMARY", m + 3, y + 5.5);
+        y += 12;
+
+        doc.setFontSize(9);
+        doc.setTextColor(40, 40, 40);
         doc.setFont("helvetica", "normal");
-        const lines = doc.splitTextToSize(result.clinical_summary, 170);
-        doc.text(lines, margin, y); y += lines.length * 6 + 8;
+        const lines = doc.splitTextToSize(result.clinical_summary, pw);
+        doc.text(lines, m, y);
+        y += lines.length * 4.5 + 6;
       }
+
+      // ── Methodology ──
+      checkPage(35);
+      doc.setFillColor(30, 64, 120);
+      doc.rect(m, y, pw, 8, "F");
+      doc.setFontSize(10);
+      doc.setTextColor(255);
+      doc.setFont("helvetica", "bold");
+      doc.text("ANALYSIS METHODOLOGY", m + 3, y + 5.5);
+      y += 12;
+
+      doc.setFontSize(8);
+      doc.setTextColor(80, 80, 80);
+      doc.setFont("helvetica", "normal");
+      const methodText = [
+        "This analysis was performed using a simulated diagnostic AI engine (RadiologyAI Demo).",
+        "The engine utilizes convolutional neural network architectures with Grad-CAM attention mapping",
+        "to identify regions of diagnostic significance. Confidence scores reflect the model's prediction",
+        "certainty based on pattern matching against a training dataset of labeled medical images.",
+        "",
+        "Heatmap overlays indicate regions of highest activation in the neural network's final",
+        "convolutional layers, highlighting areas that most influenced the diagnostic prediction.",
+      ];
+      methodText.forEach((line) => { doc.text(line, m, y); y += 4; });
+      y += 6;
+
+      // ── Recommendations ──
+      checkPage(30);
+      doc.setFillColor(30, 64, 120);
+      doc.rect(m, y, pw, 8, "F");
+      doc.setFontSize(10);
+      doc.setTextColor(255);
+      doc.setFont("helvetica", "bold");
+      doc.text("RECOMMENDATIONS", m + 3, y + 5.5);
+      y += 12;
+
+      doc.setFontSize(9);
+      doc.setTextColor(40, 40, 40);
+      doc.setFont("helvetica", "normal");
+      const recs = [
+        "1. Correlate findings with clinical history and physical examination.",
+        "2. Consider follow-up imaging in 2-4 weeks to assess progression or resolution.",
+        "3. Consult with a board-certified radiologist for definitive interpretation.",
+        "4. If clinically indicated, additional imaging modalities may provide further information.",
+      ];
+      recs.forEach((r) => { doc.text(r, m, y); y += 5.5; });
+      y += 8;
     }
 
+    // ── Disclaimer ──
+    checkPage(25);
     doc.setDrawColor(200, 0, 0);
-    doc.setFillColor(255, 240, 240);
-    doc.rect(margin, y, 180, 20, "FD");
-    doc.setFontSize(9);
-    doc.setTextColor(150, 0, 0);
-    doc.text("DISCLAIMER: This report is generated by AI and is intended for informational purposes only.", margin + 3, y + 7);
-    doc.text("It should not be used as a substitute for professional medical diagnosis.", margin + 3, y + 13);
+    doc.setFillColor(255, 245, 245);
+    doc.roundedRect(m, y, pw, 22, 2, 2, "FD");
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(180, 0, 0);
+    doc.text("IMPORTANT DISCLAIMER", m + 3, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(120, 0, 0);
+    doc.text("This report is generated by a demonstration AI system and is intended for educational purposes only.", m + 3, y + 10);
+    doc.text("It should NOT be used as a substitute for professional medical diagnosis. Always consult a qualified", m + 3, y + 14.5);
+    doc.text("radiologist or healthcare professional for clinical decisions.", m + 3, y + 19);
+
+    // ── Footer ──
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setFillColor(240, 244, 248);
+      doc.rect(0, 285, 210, 12, "F");
+      doc.setFontSize(7);
+      doc.setTextColor(130, 130, 130);
+      doc.text(`RadiologyAI Diagnostic Report · Page ${i} of ${pages}`, 105, 291, { align: "center" });
+      doc.text("CONFIDENTIAL — FOR AUTHORIZED PERSONNEL ONLY", 105, 295, { align: "center" });
+    }
 
     doc.save(`RadiologyAI_Report_${id?.slice(0, 8)}.pdf`);
   };

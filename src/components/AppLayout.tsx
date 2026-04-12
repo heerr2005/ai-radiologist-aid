@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import AIChatbot from "@/components/AIChatbot";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -144,6 +145,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
         <main className="flex-1 overflow-auto pb-20 md:pb-0">{children}</main>
       </div>
+
+      <AIChatbot />
     </div>
   );
 }

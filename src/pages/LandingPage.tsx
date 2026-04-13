@@ -94,9 +94,9 @@ export default function LandingPage() {
               <Zap className="h-3.5 w-3.5" />
               AI-Powered Medical Imaging Platform
             </div>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.3]">
               Smarter Diagnostics with{" "}
-              <span className="gradient-text" style={{ fontFamily: "'Great Vibes', cursive" }}>AI Radiology</span>
+              <span className="gradient-text inline-block py-2 leading-[1.4]" style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700 }}>AI Radiology</span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Upload medical scans, get instant AI-powered analysis with confidence scoring,

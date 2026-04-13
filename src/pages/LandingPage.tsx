@@ -96,7 +96,18 @@ export default function LandingPage() {
             </div>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.3]">
               Smarter Diagnostics with{" "}
-              <span className="gradient-text inline-block py-2 leading-[1.4]" style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700 }}>AI Radiology</span>
+              <span className="relative inline-block">
+                <span className="gradient-text py-1 leading-[1.5]" style={{ fontFamily: "'Mrs Saint Delafield', cursive", fontSize: '1.3em' }}>AI Radiology</span>
+                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: 'visible' }}>
+                  <path d="M2 8 C30 2, 60 10, 90 5 S150 8, 198 3" stroke="url(#sig-gradient)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                  <defs>
+                    <linearGradient id="sig-gradient" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="hsl(210, 75%, 42%)" />
+                      <stop offset="100%" stopColor="hsl(195, 60%, 45%)" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Upload medical scans, get instant AI-powered analysis with confidence scoring,

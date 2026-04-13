@@ -96,7 +96,7 @@ export default function LandingPage() {
             </div>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
               Smarter Diagnostics with{" "}
-              <span className="gradient-text">AI Radiology</span>
+              <span className="gradient-text" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}>AI Radiology</span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Upload medical scans, get instant AI-powered analysis with confidence scoring,
